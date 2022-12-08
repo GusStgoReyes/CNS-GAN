@@ -28,7 +28,7 @@ net.classifier = nn.Sequential(*list(net.classifier.children())[:-6])
 
 print('---------loading decode training data---------')
 img_data = torchvision.datasets.ImageFolder(image_dir, transform=transforms.Compose([
-                                                transforms.Scale(256),
+                                                transforms.Resize(256),
                                                 transforms.CenterCrop(224),
                                                 transforms.ToTensor()]))
 testdata = torch.utils.data.DataLoader(img_data)

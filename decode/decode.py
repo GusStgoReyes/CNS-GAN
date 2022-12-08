@@ -64,9 +64,6 @@ def main():
     parser.add_argument('--output', type=str)
 
     args = parser.parse_args()
-    
-    subjects = config.subjects
-    rois = config.rois
 
     results_dir = args.output
     fmri_dir = args.fmri_data
@@ -77,50 +74,45 @@ def main():
     if not os.path.exists(results_dir):
         os.makedirs(results_dir)
 
-    for sbj, roi in product(subjects, rois):
-        print('--------------------')
-        print('Subject:    %s' % sbj)
-        print('ROI:        %s' % roi)
-        
-        # load fMRI data
-        with open(os.path.join(fmri_dir,'fmri_'+sbj+'_'+roi+'.pkl'),'rb') as f:
-            dat=pickle.load(f)
+    # load fMRI data
+    with open(os.path.join(fmri_dir,'fmri_'+sbj+'_'+roi+'.pkl'),'rb') as f:
+        dat=pickle.load(f)
 
-        datatype = dat[:,0]
-        labels = dat[:,1]
-        x = dat[:,2:]
+    datatype = dat[:,0]
+    labels = dat[:,1]
+    x = dat[:,2:]
 
-        # get available image features for training
-        y_sorted, i_avail, keys = sort_img_feat(data_feature, labels)
+    # get available image features for training
+    y_sorted, i_avail, keys = sort_img_feat(data_feature, labels)
 
-        i_train = (datatype == 1).flatten()    # Index for training
-        i_test = (datatype == 2).flatten()  # Index for perception test
+    i_train = (datatype == 1).flatten()    # Index for training
+    i_test = (datatype == 2).flatten()  # Index for perception test
 
-        i_test_f = i_test & i_avail
-        i_train_f = i_train & i_avail
+    i_test_f = i_test & i_avail
+    i_train_f = i_train & i_avail
 
-        # divide training & test data
-        x_train = x[i_train_f, :]
-        x_test = x[i_test_f, :]
-        y_train = y_sorted[i_train_f, :]
-        y_test = y_sorted[i_test_f, :]
-        lbl = keys[i_test_f]
-        
-        # train decoder and decode
-        pred_y = run_decode(x_train, y_train, x_test, y_test)
+    # divide training & test data
+    x_train = x[i_train_f, :]
+    x_test = x[i_test_f, :]
+    y_train = y_sorted[i_train_f, :]
+    y_test = y_sorted[i_test_f, :]
+    lbl = keys[i_test_f]
+    
+    # train decoder and decode
+    pred_y = run_decode(x_train, y_train, x_test, y_test)
 
-        # save results
-        decode_id = 'decode_' + sbj + '_' + roi
+    # save results
+    decode_id = 'decode_' + sbj + '_' + roi
 
-        savepath = os.path.join(results_dir, decode_id+'_pred.pkl')
-        with open(savepath, 'wb') as f:
-            pickle.dump(pred_y, f)
-        print('Saved %s' % savepath)
+    savepath = os.path.join(results_dir, decode_id+'_pred.pkl')
+    with open(savepath, 'wb') as f:
+        pickle.dump(pred_y, f)
+    print('Saved %s' % savepath)
 
-        savepath = os.path.join(results_dir, decode_id+'_id.pkl')
-        with open(savepath, 'wb') as f:
-            pickle.dump(lbl, f)
-        print('Saved %s' % savepath)
+    savepath = os.path.join(results_dir, decode_id+'_id.pkl')
+    with open(savepath, 'wb') as f:
+        pickle.dump(lbl, f)
+    print('Saved %s' % savepath)
 
 # Functions ############################################################
 

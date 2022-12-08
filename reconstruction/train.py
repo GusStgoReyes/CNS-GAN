@@ -74,7 +74,7 @@ if __name__=="__main__":
             if(step % 100 == 0):
                 print("train epoch: ", t, "loss", loss.cpu().data.numpy())
 
-    torch.save(transNet.state_dict(), './reconstruction/model/deconvNN_par.pkl')
+    torch.save(transNet.state_dict(), '/content/CNS-GAN/reconstruction/model/deconvNN_par.pkl')
     print('-------- DCNN training complete ----------')
     
     net = models.vgg19_bn(pretrained = True).cuda()
@@ -98,7 +98,7 @@ if __name__=="__main__":
     
     for i in range (len(transNet_x)):
         
-        train_img_path = './tmp/train_pix2pix/'
+        train_img_path = '/content/CNS-GAN/tmp/train_pix2pix/'
 
         file_path = os.path.join(train_img_path, img_data.classes[i], 'train')
         if not os.path.exists(file_path):
@@ -117,9 +117,9 @@ if __name__=="__main__":
     
     print('-------- training pix2pix model ----------')
     
-    classes = open('./reconstruction/class_list.txt') 
+    classes = open('/content/CNS-GAN/reconstruction/class_list.txt') 
     for line in classes.readlines():
-        command = "python ./reconstruction/pix2pix/train.py --dataroot " + os.path.join(train_img_path, line) + " --name " + line + " --model pix2pix --netG unet_128 --direction BtoA --lambda_L1 100 --dataset_mode aligned --norm batch --pool_size 0 --load_size 128 --crop_size 128 --checkpoints_dir ./reconstruction/model/checkpoints --batch_size " + str(args.pix2pix_batch) + " --niter " + str(args.pix2pix_niter) + " --niter_decay " + str(args.pix2pix_niter_decay) + " --lr " + str(args.pix2pix_lr)
+        command = "python /content/CNS-GAN/reconstruction/pix2pix/pix2pix/train.py --dataroot " + os.path.join(train_img_path, line) + " --name " + line + " --model pix2pix --netG unet_128 --direction BtoA --lambda_L1 100 --dataset_mode aligned --norm batch --pool_size 0 --load_size 128 --crop_size 128 --checkpoints_dir /content/CNS-GAN/reconstruction/model/checkpoints --batch_size " + str(args.pix2pix_batch) + " --n_epochs " + str(args.pix2pix_niter) + " --n_epochs_decay " + str(args.pix2pix_niter_decay) + " --lr " + str(args.pix2pix_lr)
         subprocess.call(command.replace('\n',''), shell = True)
         
     print('-------- training complete ----------')
